@@ -57,13 +57,6 @@ Absolutely! The block is fully responsive and works smoothly on all devices. The
 
 The animation is optimized for performance and uses efficient scroll event handling with throttling to ensure smooth scrolling without impacting page performance.
 
-## Screenshots
-
-1. Block editor interface showing image upload controls and sidebar settings
-2. Example of left-to-right reveal animation in action
-3. Sidebar settings panel with reveal direction and fade options
-4. Before and after comparison using the scroll reveal effect
-
 ## Changelog
 
 = 0.1.0 =
