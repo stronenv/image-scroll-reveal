@@ -1,0 +1,46 @@
+.wp-block-telex-block-image-scroll-reveal {
+	position: relative;
+	width: 100%;
+	max-width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+
+	figure {
+		margin: 0;
+	}
+}
+
+.image-scroll-reveal-container {
+	position: relative;
+	width: 100%;
+	max-width: 100%;
+	overflow: hidden;
+}
+
+.images-wrapper {
+	position: relative;
+	width: 100%;
+	height: 0;
+	padding-bottom: 56.25%;
+	overflow: hidden;
+	border-radius: inherit;
+}
+
+.bottom-image,
+.top-image {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: block;
+	object-fit: cover;
+	border-radius: inherit;
+}
+
+.image-scroll-reveal-caption {
+	margin-top: 0.5em;
+	font-size: 0.875em;
+	color: #6c757d;
+	text-align: center;
+}

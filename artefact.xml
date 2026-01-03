@@ -1,0 +1,1168 @@
+<?xml version="1.0"?><artefact xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="artefact.xsd" name="Image Scroll Reveal" slug="image-scroll-reveal" type="code-package" schemaVersion="2">
+  <file path="readme.txt">
+    <description>This file contains the readme information for the block. It is used to provide information about the block, its usage, and any other relevant details.</description>
+    <content><![CDATA[
+=== Image Scroll Reveal ===
+
+Contributors:      stronenv, WordPress Telex
+Tags:              block, image, animation, scroll, comparison
+Tested up to:      6.8
+Stable tag:        0.1.0
+License:           GPLv2 or later
+License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+
+Create stunning scroll-triggered image reveal animations with customizable directions and fade effects.
+
+== Description ==
+
+The Image Scroll Reveal block allows you to create engaging image comparison experiences that respond to user scrolling. Display two overlapping images where the top image gradually reveals the bottom image as users scroll down the page.
+
+Perfect for:
+* Before and after comparisons
+* Product reveals
+* Portfolio showcases
+* Interactive storytelling
+* Design transformations
+
+Key Features:
+* Smooth scroll-triggered animations that start when the block enters the viewport
+* Four reveal directions: left, right, top, and bottom
+* Customizable fade transition width for smooth blending
+* Adjustable fade effect styles
+* Full WordPress image block settings support (alt text, dimensions, borders, spacing, links)
+* Responsive design that maintains aspect ratios
+* Easy-to-use editor interface with drag-and-drop image uploads
+
+The animation begins automatically when the block enters the viewport and completes when it reaches 30% from the top of the screen, creating a natural and engaging user experience.
+
+== Installation ==
+
+1. Upload the plugin files to the `/wp-content/plugins/image-scroll-reveal` directory, or install the plugin through the WordPress plugins screen directly.
+2. Activate the plugin through the 'Plugins' screen in WordPress
+3. Add the "Image Scroll Reveal" block to any post or page
+4. Upload your top and bottom images
+5. Customize the reveal direction and fade settings in the block sidebar
+
+== Frequently Asked Questions ==
+
+= How do I change the reveal direction? =
+
+In the block sidebar settings, you'll find a "Reveal Direction" option with four choices: Left, Right, Top, and Bottom. Select your preferred direction to change how the top image reveals the bottom image.
+
+= Can I adjust the fade effect? =
+
+Yes! The block includes a "Transition Fade Width" setting where you can specify the width of the fade effect in pixels. You can also choose different fade effect styles for various visual appearances.
+
+= Will this work on mobile devices? =
+
+Absolutely! The block is fully responsive and works smoothly on all devices. The images automatically adjust to maintain their aspect ratios on different screen sizes.
+
+= Does the animation affect page performance? =
+
+The animation is optimized for performance and uses efficient scroll event handling with throttling to ensure smooth scrolling without impacting page performance.
+
+== Screenshots ==
+
+1. Block editor interface showing image upload controls and sidebar settings
+2. Example of left-to-right reveal animation in action
+3. Sidebar settings panel with reveal direction and fade options
+4. Before and after comparison using the scroll reveal effect
+
+== Changelog ==
+
+= 0.1.0 =
+* Initial release
+* Scroll-triggered reveal animation
+* Four reveal directions (left, right, top, bottom)
+* Customizable fade transition width
+* Full WordPress image settings support
+* Responsive design
+
+== Advanced Usage ==
+
+The block supports all standard WordPress image settings including:
+* Alt text for accessibility
+* Custom dimensions (width and height)
+* Border styles and colors
+* Spacing controls (margin and padding)
+* Link options to connect images to URLs
+
+For best results, use images with the same dimensions or aspect ratios to ensure smooth transitions.
+]]></content>
+  </file>
+  <file path="image-scroll-reveal.php">
+    <description>This file contains the block registration code in the form of a single block plugin. Any other plugin related functionality should be added to this file. All block rendering functionality should go to the `render.php` file.</description>
+    <content><![CDATA[<?php
+/**
+ * Plugin Name:       Image Scroll Reveal
+ * Description:       Create stunning scroll-triggered image reveal animations with customizable directions and fade effects.
+ * Version:           0.1.0
+ * Requires at least: 6.1
+ * Requires PHP:      7.4
+ * Author:            WordPress Telex
+ * License:           GPLv2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:       image-scroll-reveal
+ *
+ * @package ImageScrollReveal
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * Registers the block using the metadata loaded from the `block.json` file.
+ * Behind the scenes, it registers also all assets so they can be enqueued
+ * through the block editor in the corresponding context.
+ *
+ * @see https://developer.wordpress.org/reference/functions/register_block_type/
+ */
+function image_scroll_reveal_image_scroll_reveal_block_init() {
+	register_block_type( __DIR__ . '/build/' );
+}
+add_action( 'init', 'image_scroll_reveal_image_scroll_reveal_block_init' );
+	]]></content>
+  </file>
+  <file path="src/block.json">
+    <description>This file contains metadata about the block including its name, title, category, icon, and other properties.</description>
+    <content><![CDATA[{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "telex/block-image-scroll-reveal",
+	"version": "0.1.0",
+	"title": "Image Scroll Reveal",
+	"category": "media",
+	"icon": "images-alt2",
+	"description": "Create scroll-triggered image reveal animations with customizable directions and fade effects",
+	"example": {
+		"attributes": {
+			"topImageUrl": "https://placehold.co/800x600/4299e1/ffffff?text=Top+Image",
+			"bottomImageUrl": "https://placehold.co/800x600/10b981/ffffff?text=Bottom+Image",
+			"revealDirection": "top"
+		}
+	},
+	"attributes": {
+		"topImageId": {
+			"type": "number"
+		},
+		"topImageUrl": {
+			"type": "string"
+		},
+		"topImageAlt": {
+			"type": "string",
+			"default": ""
+		},
+		"topImageSizeSlug": {
+			"type": "string",
+			"default": "full"
+		},
+		"bottomImageId": {
+			"type": "number"
+		},
+		"bottomImageUrl": {
+			"type": "string"
+		},
+		"bottomImageAlt": {
+			"type": "string",
+			"default": ""
+		},
+		"bottomImageSizeSlug": {
+			"type": "string",
+			"default": "full"
+		},
+		"caption": {
+			"type": "string",
+			"source": "html",
+			"selector": "figcaption",
+			"default": ""
+		},
+		"showCaption": {
+			"type": "boolean",
+			"default": true
+		},
+		"revealDirection": {
+			"type": "string",
+			"default": "top",
+			"enum": ["left", "right", "top", "bottom"]
+		},
+		"transitionFadeWidth": {
+			"type": "number",
+			"default": 20
+		},
+		"objectFit": {
+			"type": "string",
+			"default": "cover",
+			"enum": ["cover", "contain", "fill", "none"]
+		}
+	},
+	"supports": {
+		"html": false,
+		"align": ["wide", "full"],
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"__experimentalBorder": {
+			"color": true,
+			"radius": true,
+			"style": true,
+			"width": true
+		}
+	},
+	"textdomain": "image-scroll-reveal",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"viewScript": "file:./view.js",
+	"render": "file:./render.php"
+}]]></content>
+  </file>
+  <file path="src/index.js">
+    <description>This file registers the block, specifies the edit and save functions, and loads the block's metadata</description>
+    <content><![CDATA[
+  /**
+ * Registers a new block provided a unique name and an object defining its behavior.
+ *
+ * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/
+ */
+import { registerBlockType } from '@wordpress/blocks';
+
+/**
+ * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
+ * All files containing `style` keyword are bundled together. The code used
+ * gets applied both to the front of your site and to the editor.
+ *
+ * @see https://www.npmjs.com/package/@wordpress/scripts#using-css
+ */
+import './style.scss';
+
+/**
+ * Internal dependencies
+ */
+import Edit from './edit';
+import metadata from './block.json';
+
+/**
+ * Every block starts by registering a new block type definition.
+ *
+ * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/
+ */
+registerBlockType( metadata.name, {
+	/**
+	 * @see ./edit.js
+	 */
+	edit: Edit,
+} );
+	]]></content>
+  </file>
+  <file path="src/edit.js">
+    <description>This file contains the edit function for the block which is responsible for rendering the block in the editor.</description>
+    <content><![CDATA[/**
+ * Retrieves the translation of text.
+ *
+ * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-i18n/
+ */
+import { __ } from '@wordpress/i18n';
+
+/**
+ * React hook that is used to mark the block wrapper element.
+ * It provides all the necessary props like the class name.
+ *
+ * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
+ */
+import { 
+	useBlockProps,
+	InspectorControls,
+	MediaPlaceholder,
+	BlockControls,
+	MediaReplaceFlow,
+	RichText
+} from '@wordpress/block-editor';
+
+import {
+	PanelBody,
+	SelectControl,
+	RangeControl,
+	ToolbarGroup,
+	ToolbarButton,
+	TextControl
+} from '@wordpress/components';
+
+import { useState } from '@wordpress/element';
+import { caption as captionIcon } from '@wordpress/icons';
+import { useSelect } from '@wordpress/data';
+import { store as coreStore } from '@wordpress/core-data';
+
+/**
+ * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
+ * Those files can contain any CSS code that gets applied to the editor.
+ *
+ * @see https://www.npmjs.com/package/@wordpress/scripts#using-css
+ */
+import './editor.scss';
+
+/**
+ * The edit function describes the structure of your block in the context of the
+ * editor. This represents what the editor will render when the block is used.
+ *
+ * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-edit-save/#edit
+ *
+ * @param {Object} props Block properties
+ * @return {Element} Element to render.
+ */
+export default function Edit( { attributes, setAttributes, isSelected } ) {
+	const {
+		topImageId,
+		topImageUrl,
+		topImageAlt,
+		topImageSizeSlug,
+		bottomImageId,
+		bottomImageUrl,
+		bottomImageAlt,
+		bottomImageSizeSlug,
+		caption,
+		showCaption,
+		revealDirection,
+		transitionFadeWidth,
+		objectFit
+	} = attributes;
+
+	const [ revealProgress, setRevealProgress ] = useState( 50 );
+
+	// Get available image sizes and media details
+	const { imageSizes, topImage, bottomImage } = useSelect(
+		( select ) => {
+			const { getMedia } = select( coreStore );
+			const { getSettings } = select( 'core/block-editor' );
+			const settings = getSettings();
+
+			return {
+				imageSizes: settings?.imageSizes || [],
+				topImage: topImageId ? getMedia( topImageId ) : null,
+				bottomImage: bottomImageId ? getMedia( bottomImageId ) : null
+			};
+		},
+		[ topImageId, bottomImageId ]
+	);
+
+	// Get the URL for a specific image size
+	const getImageUrl = ( image, sizeSlug ) => {
+		if ( ! image ) {
+			return null;
+		}
+
+		if ( ! sizeSlug || sizeSlug === 'full' ) {
+			return image.source_url;
+		}
+
+		const imageSize = image?.media_details?.sizes?.[ sizeSlug ];
+		return imageSize?.source_url || image.source_url;
+	};
+
+	// Get display URL for each image based on selected size
+	const topImageDisplayUrl = topImage ? getImageUrl( topImage, topImageSizeSlug ) : topImageUrl;
+	const bottomImageDisplayUrl = bottomImage ? getImageUrl( bottomImage, bottomImageSizeSlug ) : bottomImageUrl;
+
+	const blockProps = useBlockProps( {
+		className: 'image-scroll-reveal-container'
+	} );
+
+	const onSelectBottomImage = ( media ) => {
+		setAttributes( {
+			bottomImageId: media.id,
+			bottomImageUrl: media.url,
+			bottomImageAlt: media.alt || '',
+			bottomImageSizeSlug: 'full'
+		} );
+	};
+
+	const onSelectTopImage = ( media ) => {
+		setAttributes( {
+			topImageId: media.id,
+			topImageUrl: media.url,
+			topImageAlt: media.alt || '',
+			topImageSizeSlug: 'full'
+		} );
+	};
+
+	const onSelectBottomImageURL = ( url ) => {
+		setAttributes( {
+			bottomImageId: undefined,
+			bottomImageUrl: url,
+			bottomImageAlt: '',
+			bottomImageSizeSlug: 'full'
+		} );
+	};
+
+	const onSelectTopImageURL = ( url ) => {
+		setAttributes( {
+			topImageId: undefined,
+			topImageUrl: url,
+			topImageAlt: '',
+			topImageSizeSlug: 'full'
+		} );
+	};
+
+	const onRemoveBottomImage = () => {
+		setAttributes( {
+			bottomImageId: undefined,
+			bottomImageUrl: undefined,
+			bottomImageAlt: '',
+			bottomImageSizeSlug: 'full'
+		} );
+	};
+
+	const onRemoveTopImage = () => {
+		setAttributes( {
+			topImageId: undefined,
+			topImageUrl: undefined,
+			topImageAlt: '',
+			topImageSizeSlug: 'full'
+		} );
+	};
+
+	const getClipPathStyle = ( progress ) => {
+		const percent = progress;
+		
+		switch ( revealDirection ) {
+			case 'left':
+				return `inset(0 ${100 - percent}% 0 0)`;
+			case 'right':
+				return `inset(0 0 0 ${100 - percent}%)`;
+			case 'top':
+				return `inset(0 0 ${100 - percent}% 0)`;
+			case 'bottom':
+				return `inset(${100 - percent}% 0 0 0)`;
+			default:
+				return `inset(0 ${100 - percent}% 0 0)`;
+		}
+	};
+
+	// Create size options for SelectControl
+	const imageSizeOptions = imageSizes.map( ( size ) => ( {
+		label: size.name,
+		value: size.slug
+	} ) );
+
+	const hasBottomImage = !! bottomImageUrl;
+	const hasTopImage = !! topImageUrl;
+	const hasBothImages = hasBottomImage && hasTopImage;
+
+	return (
+		<>
+			<BlockControls>
+				{ hasBottomImage && (
+					<ToolbarGroup>
+						<MediaReplaceFlow
+							mediaId={ bottomImageId }
+							mediaURL={ bottomImageUrl }
+							allowedTypes={ [ 'image' ] }
+							accept="image/*"
+							onSelect={ onSelectBottomImage }
+							onSelectURL={ onSelectBottomImageURL }
+							onReset={ onRemoveBottomImage }
+							name={ __( 'Replace Bottom Image', 'image-scroll-reveal' ) }
+						/>
+					</ToolbarGroup>
+				) }
+				{ hasTopImage && (
+					<ToolbarGroup>
+						<MediaReplaceFlow
+							mediaId={ topImageId }
+							mediaURL={ topImageUrl }
+							allowedTypes={ [ 'image' ] }
+							accept="image/*"
+							onSelect={ onSelectTopImage }
+							onSelectURL={ onSelectTopImageURL }
+							onReset={ onRemoveTopImage }
+							name={ __( 'Replace Top Image', 'image-scroll-reveal' ) }
+						/>
+					</ToolbarGroup>
+				) }
+				{ hasBothImages && (
+					<ToolbarGroup>
+						<ToolbarButton
+							icon={ captionIcon }
+							title={ __( 'Toggle caption', 'image-scroll-reveal' ) }
+							isPressed={ showCaption }
+							onClick={ () => setAttributes( { showCaption: ! showCaption } ) }
+						/>
+					</ToolbarGroup>
+				) }
+			</BlockControls>
+
+			<InspectorControls>
+				<PanelBody title={ __( 'Reveal Settings', 'image-scroll-reveal' ) }>
+					<SelectControl
+						label={ __( 'Reveal Direction', 'image-scroll-reveal' ) }
+						value={ revealDirection }
+						options={ [
+							{ label: __( 'Left to Right', 'image-scroll-reveal' ), value: 'left' },
+							{ label: __( 'Right to Left', 'image-scroll-reveal' ), value: 'right' },
+							{ label: __( 'Top to Bottom', 'image-scroll-reveal' ), value: 'top' },
+							{ label: __( 'Bottom to Top', 'image-scroll-reveal' ), value: 'bottom' }
+						] }
+						onChange={ ( value ) => setAttributes( { revealDirection: value } ) }
+						help={ __( 'Direction in which the top image reveals the bottom image', 'image-scroll-reveal' ) }
+					/>
+					
+					<RangeControl
+						label={ __( 'Transition Fade Width (px)', 'image-scroll-reveal' ) }
+						value={ transitionFadeWidth }
+						onChange={ ( value ) => setAttributes( { transitionFadeWidth: value } ) }
+						min={ 0 }
+						max={ 300 }
+						help={ __( 'Width of the fade transition effect', 'image-scroll-reveal' ) }
+					/>
+					
+					<SelectControl
+						label={ __( 'Object Fit', 'image-scroll-reveal' ) }
+						value={ objectFit }
+						options={ [
+							{ label: __( 'Cover', 'image-scroll-reveal' ), value: 'cover' },
+							{ label: __( 'Contain', 'image-scroll-reveal' ), value: 'contain' },
+							{ label: __( 'Fill', 'image-scroll-reveal' ), value: 'fill' },
+							{ label: __( 'None', 'image-scroll-reveal' ), value: 'none' }
+						] }
+						onChange={ ( value ) => setAttributes( { objectFit: value } ) }
+						help={ __( 'How images should be resized to fit their container', 'image-scroll-reveal' ) }
+					/>
+				</PanelBody>
+
+				{ hasBottomImage && bottomImageId && imageSizeOptions.length > 0 && (
+					<PanelBody title={ __( 'Bottom Image Settings', 'image-scroll-reveal' ) }>
+						<SelectControl
+							label={ __( 'Resolution', 'image-scroll-reveal' ) }
+							value={ bottomImageSizeSlug }
+							options={ imageSizeOptions }
+							onChange={ ( value ) => setAttributes( { bottomImageSizeSlug: value } ) }
+							help={ __( 'Select the image resolution to display', 'image-scroll-reveal' ) }
+						/>
+						<TextControl
+							label={ __( 'Alternative Text', 'image-scroll-reveal' ) }
+							value={ bottomImageAlt }
+							onChange={ ( value ) => setAttributes( { bottomImageAlt: value } ) }
+							help={ __( 'Describe the purpose of the image for screen readers', 'image-scroll-reveal' ) }
+						/>
+					</PanelBody>
+				) }
+
+				{ hasBottomImage && ! bottomImageId && (
+					<PanelBody title={ __( 'Bottom Image Settings', 'image-scroll-reveal' ) }>
+						<TextControl
+							label={ __( 'Alternative Text', 'image-scroll-reveal' ) }
+							value={ bottomImageAlt }
+							onChange={ ( value ) => setAttributes( { bottomImageAlt: value } ) }
+							help={ __( 'Describe the purpose of the image for screen readers', 'image-scroll-reveal' ) }
+						/>
+					</PanelBody>
+				) }
+
+				{ hasTopImage && topImageId && imageSizeOptions.length > 0 && (
+					<PanelBody title={ __( 'Top Image Settings', 'image-scroll-reveal' ) }>
+						<SelectControl
+							label={ __( 'Resolution', 'image-scroll-reveal' ) }
+							value={ topImageSizeSlug }
+							options={ imageSizeOptions }
+							onChange={ ( value ) => setAttributes( { topImageSizeSlug: value } ) }
+							help={ __( 'Select the image resolution to display', 'image-scroll-reveal' ) }
+						/>
+						<TextControl
+							label={ __( 'Alternative Text', 'image-scroll-reveal' ) }
+							value={ topImageAlt }
+							onChange={ ( value ) => setAttributes( { topImageAlt: value } ) }
+							help={ __( 'Describe the purpose of the image for screen readers', 'image-scroll-reveal' ) }
+						/>
+					</PanelBody>
+				) }
+
+				{ hasTopImage && ! topImageId && (
+					<PanelBody title={ __( 'Top Image Settings', 'image-scroll-reveal' ) }>
+						<TextControl
+							label={ __( 'Alternative Text', 'image-scroll-reveal' ) }
+							value={ topImageAlt }
+							onChange={ ( value ) => setAttributes( { topImageAlt: value } ) }
+							help={ __( 'Describe the purpose of the image for screen readers', 'image-scroll-reveal' ) }
+						/>
+					</PanelBody>
+				) }
+
+				{ hasBothImages && (
+					<PanelBody title={ __( 'Preview', 'image-scroll-reveal' ) } initialOpen={ true }>
+						<RangeControl
+							label={ __( 'Reveal Progress (%)', 'image-scroll-reveal' ) }
+							value={ revealProgress }
+							onChange={ ( value ) => setRevealProgress( value ) }
+							min={ 0 }
+							max={ 100 }
+							help={ __( 'Adjust to preview the reveal effect', 'image-scroll-reveal' ) }
+						/>
+						
+						<div className="sidebar-preview-container">
+							<div className="sidebar-images-container">
+								<img 
+									src={ bottomImageDisplayUrl } 
+									alt={ bottomImageAlt }
+									className="sidebar-bottom-image"
+									style={ { objectFit: objectFit } }
+								/>
+								<img 
+									src={ topImageDisplayUrl } 
+									alt={ topImageAlt }
+									className="sidebar-top-image"
+									style={ {
+										clipPath: getClipPathStyle( revealProgress ),
+										objectFit: objectFit
+									} }
+								/>
+							</div>
+						</div>
+					</PanelBody>
+				) }
+			</InspectorControls>
+
+			<div { ...blockProps }>
+				<div className="image-upload-section">
+					<div className="upload-label">{ __( 'Bottom Image', 'image-scroll-reveal' ) }</div>
+					{ ! hasBottomImage ? (
+						<MediaPlaceholder
+							icon="format-image"
+							labels={ {
+								title: __( 'Bottom Image', 'image-scroll-reveal' ),
+								instructions: __( 'Upload an image or pick one from your media library.', 'image-scroll-reveal' )
+							} }
+							onSelect={ onSelectBottomImage }
+							onSelectURL={ onSelectBottomImageURL }
+							accept="image/*"
+							allowedTypes={ [ 'image' ] }
+						/>
+					) : (
+						<div className="image-preview">
+							<img src={ bottomImageDisplayUrl } alt={ bottomImageAlt } />
+						</div>
+					) }
+				</div>
+
+				<div className="image-upload-section">
+					<div className="upload-label">{ __( 'Top Image', 'image-scroll-reveal' ) }</div>
+					{ ! hasTopImage ? (
+						<MediaPlaceholder
+							icon="format-image"
+							labels={ {
+								title: __( 'Top Image', 'image-scroll-reveal' ),
+								instructions: __( 'Upload an image or pick one from your media library.', 'image-scroll-reveal' )
+							} }
+							onSelect={ onSelectTopImage }
+							onSelectURL={ onSelectTopImageURL }
+							accept="image/*"
+							allowedTypes={ [ 'image' ] }
+						/>
+					) : (
+						<div className="image-preview">
+							<img src={ topImageDisplayUrl } alt={ topImageAlt } />
+						</div>
+					) }
+				</div>
+
+				{ hasBothImages && showCaption && (
+					<RichText
+						tagName="figcaption"
+						className="image-scroll-reveal-caption"
+						placeholder={ __( 'Add caption…', 'image-scroll-reveal' ) }
+						value={ caption }
+						onChange={ ( value ) => setAttributes( { caption: value } ) }
+						allowedFormats={ [ 'core/bold', 'core/italic', 'core/link' ] }
+						inlineToolbar
+					/>
+				) }
+			</div>
+		</>
+	);
+}]]></content>
+  </file>
+  <file path="src/save.js">
+    <description>This file contains the save function for the block which is responsible for creating the static result of rendering the block on the client to display the saved result on the front end.</description>
+    <content><![CDATA[
+	]]></content>
+  </file>
+  <file path="src/style.scss">
+    <description>This file contains styles for the block in the front end.</description>
+    <content><![CDATA[.wp-block-telex-block-image-scroll-reveal {
+	position: relative;
+	width: 100%;
+	max-width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+
+	figure {
+		margin: 0;
+	}
+}
+
+.image-scroll-reveal-container {
+	position: relative;
+	width: 100%;
+	max-width: 100%;
+	overflow: hidden;
+}
+
+.images-wrapper {
+	position: relative;
+	width: 100%;
+	height: 0;
+	padding-bottom: 56.25%;
+	overflow: hidden;
+	border-radius: inherit;
+}
+
+.bottom-image,
+.top-image {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: block;
+	object-fit: cover;
+	border-radius: inherit;
+}
+
+.image-scroll-reveal-caption {
+	margin-top: 0.5em;
+	font-size: 0.875em;
+	color: #6c757d;
+	text-align: center;
+}]]></content>
+  </file>
+  <file path="src/editor.scss">
+    <description>This file contains styles for the block in the editor.</description>
+    <content><![CDATA[.image-scroll-reveal-container {
+	padding: 0;
+
+	.image-upload-section {
+		margin-bottom: 20px;
+
+		&:last-of-type {
+			margin-bottom: 20px;
+		}
+
+		.upload-label {
+			font-size: 11px;
+			font-weight: 500;
+			text-transform: uppercase;
+			color: #1e1e1e;
+			margin-bottom: 8px;
+			letter-spacing: 0.5px;
+		}
+
+		.image-preview {
+			position: relative;
+			border: 1px solid #ddd;
+			border-radius: 2px;
+			overflow: hidden;
+
+			img {
+				display: block;
+				width: 100%;
+				height: auto;
+			}
+
+			.block-editor-media-replace-flow {
+				position: absolute;
+				top: 12px;
+				right: 12px;
+				z-index: 1;
+			}
+		}
+	}
+
+	.image-scroll-reveal-caption {
+		margin-top: 0.5em;
+		margin-bottom: 0;
+		font-size: 0.875em;
+		color: #6c757d;
+		text-align: center;
+
+		&:focus {
+			outline: 2px solid #007cba;
+			outline-offset: 2px;
+		}
+	}
+}
+
+// Sidebar preview styles
+.sidebar-preview-container {
+	margin-top: 12px;
+	background: #f0f0f0;
+	padding: 12px;
+	border-radius: 2px;
+
+	.sidebar-images-container {
+		position: relative;
+		width: 100%;
+		border-radius: 2px;
+		overflow: hidden;
+
+		img {
+			display: block;
+			width: 100%;
+			height: auto;
+		}
+
+		.sidebar-bottom-image {
+			position: relative;
+			width: 100%;
+		}
+
+		.sidebar-top-image {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+	}
+}]]></content>
+  </file>
+  <file path="src/view.js">
+    <description>This file contains the view function for the block which is responsible for rendering interactive behaviors of the block on the front end.</description>
+    <content><![CDATA[(function() {
+	'use strict';
+
+	function initScrollReveal() {
+		const blocks = document.querySelectorAll('.wp-block-telex-block-image-scroll-reveal');
+		
+		if (blocks.length === 0) {
+			return;
+		}
+
+		let ticking = false;
+
+		function getClipPath(direction, progress) {
+			const percent = Math.max(0, Math.min(100, progress));
+			
+			switch (direction) {
+				case 'left':
+					return 'inset(0 ' + (100 - percent) + '% 0 0)';
+				case 'right':
+					return 'inset(0 0 0 ' + (100 - percent) + '%)';
+				case 'top':
+					return 'inset(0 0 ' + (100 - percent) + '% 0)';
+				case 'bottom':
+					return 'inset(' + (100 - percent) + '% 0 0 0)';
+				default:
+					return 'inset(0 ' + (100 - percent) + '% 0 0)';
+			}
+		}
+
+		function calculateRevealProgress(block, fadeWidth) {
+			const rect = block.getBoundingClientRect();
+			const viewportHeight = window.innerHeight;
+			const blockHeight = rect.height;
+			
+			// Check if the block is taller than 95% of the viewport
+			const isTallBlock = blockHeight > (viewportHeight * 0.95);
+			
+			if (isTallBlock) {
+				// Tall block behavior: start when top hits viewport top, end when bottom is visible
+				
+				// Phase 1: Block top hasn't reached viewport top yet
+				if (rect.top > 0) {
+					return 0;
+				}
+				
+				// Calculate the extended end point to account for fade width
+				const fadePixels = parseFloat(fadeWidth) || 0;
+				const fadePercent = (fadePixels / blockHeight) * 100;
+				const extendedTarget = viewportHeight + fadePixels;
+				
+				// Phase 3: Block bottom has scrolled past the extended target (animation complete)
+				if (rect.bottom <= viewportHeight - fadePixels) {
+					return 100 + fadePercent;
+				}
+				
+				// Phase 2: Animation in progress (from top hitting viewport top to bottom becoming visible)
+				const scrolledDistance = Math.abs(rect.top);
+				const totalScrollDistance = blockHeight - viewportHeight + fadePixels;
+				const progress = (scrolledDistance / totalScrollDistance) * (100 + fadePercent);
+				
+				return Math.max(0, Math.min(100 + fadePercent, progress));
+			} else {
+				// Normal block behavior (existing functionality)
+				
+				// Phase 1: Block bottom hasn't reached viewport bottom yet (not fully visible)
+				if (rect.bottom > viewportHeight) {
+					return 0;
+				}
+				
+				// Calculate the extended end point to account for fade width
+				const fadePixels = parseFloat(fadeWidth) || 0;
+				const fadePercent = (fadePixels / blockHeight) * 100;
+				const extendedTarget = -fadePercent;
+				
+				// Phase 3: Block has scrolled past the extended target (animation complete)
+				if (rect.top <= extendedTarget) {
+					return 100 + fadePercent;
+				}
+				
+				// Phase 2: Animation in progress
+				const startTop = viewportHeight - blockHeight;
+				const currentDistanceFromStart = startTop - rect.top;
+				const totalScrollDistance = startTop - extendedTarget;
+				const progress = (currentDistanceFromStart / totalScrollDistance) * (100 + fadePercent);
+				
+				return Math.max(0, Math.min(100 + fadePercent, progress));
+			}
+		}
+
+		function applyFadeEffect(element, direction, fadeWidth, progress) {
+			if (!fadeWidth || fadeWidth === 0) {
+				element.style.maskImage = 'none';
+				element.style.webkitMaskImage = 'none';
+				return;
+			}
+
+			// Calculate the position of the transition edge based on progress
+			const percent = Math.max(0, progress);
+			let gradient;
+			
+			switch (direction) {
+				case 'left':
+					// Fade moves from left to right - revealed area on left, fade at edge, hidden on right
+					gradient = 'linear-gradient(to right, ' +
+						'black 0%, ' +
+						'black calc(' + percent + '% - ' + fadeWidth + 'px), ' +
+						'transparent ' + percent + '%, ' +
+						'transparent 100%)';
+					break;
+				case 'right':
+					// Fade moves from right to left - revealed area on right, fade at edge, hidden on left
+					gradient = 'linear-gradient(to left, ' +
+						'black 0%, ' +
+						'black calc(' + percent + '% - ' + fadeWidth + 'px), ' +
+						'transparent ' + percent + '%, ' +
+						'transparent 100%)';
+					break;
+				case 'top':
+					// Fade moves from top to bottom - revealed area on top, fade at edge, hidden on bottom
+					gradient = 'linear-gradient(to bottom, ' +
+						'black 0%, ' +
+						'black calc(' + percent + '% - ' + fadeWidth + 'px), ' +
+						'transparent ' + percent + '%, ' +
+						'transparent 100%)';
+					break;
+				case 'bottom':
+					// Fade moves from bottom to top - revealed area on bottom, fade at edge, hidden on top
+					gradient = 'linear-gradient(to top, ' +
+						'black 0%, ' +
+						'black calc(' + percent + '% - ' + fadeWidth + 'px), ' +
+						'transparent ' + percent + '%, ' +
+						'transparent 100%)';
+					break;
+				default:
+					gradient = 'linear-gradient(to right, ' +
+						'black 0%, ' +
+						'black calc(' + percent + '% - ' + fadeWidth + 'px), ' +
+						'transparent ' + percent + '%, ' +
+						'transparent 100%)';
+			}
+			
+			element.style.maskImage = gradient;
+			element.style.webkitMaskImage = gradient;
+		}
+
+		function updateBlocks() {
+			blocks.forEach(function(block) {
+				const topImage = block.querySelector('.top-image');
+				if (!topImage) {
+					return;
+				}
+
+				const direction = block.dataset.revealDirection || 'left';
+				const fadeWidth = parseInt(block.dataset.transitionFadeWidth) || 100;
+				const progress = calculateRevealProgress(block, fadeWidth);
+				
+				const clipPath = getClipPath(direction, Math.min(100, progress));
+				topImage.style.clipPath = clipPath;
+				topImage.style.webkitClipPath = clipPath;
+				
+				// Apply fade effect at the transition edge
+				applyFadeEffect(topImage, direction, fadeWidth, progress);
+			});
+			
+			ticking = false;
+		}
+
+		function onScroll() {
+			if (!ticking) {
+				window.requestAnimationFrame(updateBlocks);
+				ticking = true;
+			}
+		}
+
+		function setupImageContainers() {
+			blocks.forEach(function(block) {
+				const wrapper = block.querySelector('.images-wrapper');
+				const bottomImage = block.querySelector('.bottom-image');
+				
+				if (wrapper && bottomImage) {
+					function setAspectRatio() {
+						if (bottomImage.naturalWidth && bottomImage.naturalHeight) {
+							const aspectRatio = (bottomImage.naturalHeight / bottomImage.naturalWidth) * 100;
+							wrapper.style.paddingBottom = aspectRatio + '%';
+							wrapper.setAttribute('data-aspect-ratio', 'true');
+						}
+					}
+					
+					if (bottomImage.complete) {
+						setAspectRatio();
+					} else {
+						bottomImage.addEventListener('load', setAspectRatio);
+					}
+				}
+			});
+		}
+
+		// Initialize
+		setupImageContainers();
+		
+		// Wait for all images to load before first update
+		const allImages = [];
+		blocks.forEach(function(block) {
+			const images = block.querySelectorAll('img');
+			images.forEach(function(img) {
+				allImages.push(img);
+			});
+		});
+		
+		let loadedCount = 0;
+		const totalCount = allImages.length;
+		
+		function checkAllLoaded() {
+			loadedCount++;
+			if (loadedCount === totalCount) {
+				setTimeout(updateBlocks, 100);
+			}
+		}
+		
+		allImages.forEach(function(img) {
+			if (img.complete) {
+				checkAllLoaded();
+			} else {
+				img.addEventListener('load', checkAllLoaded);
+			}
+		});
+		
+		if (totalCount === 0 || loadedCount === totalCount) {
+			setTimeout(updateBlocks, 100);
+		}
+
+		window.addEventListener('scroll', onScroll, { passive: true });
+
+		let resizeTimeout;
+		window.addEventListener('resize', function() {
+			clearTimeout(resizeTimeout);
+			resizeTimeout = setTimeout(function() {
+				setupImageContainers();
+				updateBlocks();
+			}, 150);
+		});
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', initScrollReveal);
+	} else {
+		initScrollReveal();
+	}
+})();]]></content>
+  </file>
+  <file path="src/render.php">
+    <description>This file contains the render callback function for the block, which is responsible for rendering the block content on the front end.</description>
+    <content><![CDATA[<?php
+/**
+ * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render
+ */
+
+$top_image_id = $attributes['topImageId'] ?? 0;
+$top_image_url = $attributes['topImageUrl'] ?? '';
+$top_image_alt = $attributes['topImageAlt'] ?? '';
+$top_image_size_slug = $attributes['topImageSizeSlug'] ?? 'full';
+$bottom_image_id = $attributes['bottomImageId'] ?? 0;
+$bottom_image_url = $attributes['bottomImageUrl'] ?? '';
+$bottom_image_alt = $attributes['bottomImageAlt'] ?? '';
+$bottom_image_size_slug = $attributes['bottomImageSizeSlug'] ?? 'full';
+$caption = $attributes['caption'] ?? '';
+$show_caption = $attributes['showCaption'] ?? true;
+$reveal_direction = $attributes['revealDirection'] ?? 'top';
+$transition_fade_width = $attributes['transitionFadeWidth'] ?? 20;
+$object_fit = $attributes['objectFit'] ?? 'cover';
+
+if ( empty( $top_image_url ) || empty( $bottom_image_url ) ) {
+	return;
+}
+
+// Get the appropriate image size URL if ID is available
+if ( $bottom_image_id ) {
+	$bottom_image_data = wp_get_attachment_image_src( $bottom_image_id, $bottom_image_size_slug );
+	if ( $bottom_image_data ) {
+		$bottom_image_url = $bottom_image_data[0];
+	}
+}
+
+if ( $top_image_id ) {
+	$top_image_data = wp_get_attachment_image_src( $top_image_id, $top_image_size_slug );
+	if ( $top_image_data ) {
+		$top_image_url = $top_image_data[0];
+	}
+}
+
+$wrapper_attributes = get_block_wrapper_attributes( array(
+	'data-reveal-direction' => esc_attr( $reveal_direction ),
+	'data-transition-fade-width' => esc_attr( $transition_fade_width ),
+	'data-object-fit' => esc_attr( $object_fit )
+) );
+
+$initial_clip_path = 'inset(0 0 100% 0)';
+switch ( $reveal_direction ) {
+	case 'left':
+		$initial_clip_path = 'inset(0 100% 0 0)';
+		break;
+	case 'right':
+		$initial_clip_path = 'inset(0 0 0 100%)';
+		break;
+	case 'bottom':
+		$initial_clip_path = 'inset(100% 0 0 0)';
+		break;
+}
+
+$images_content = sprintf(
+	'<div class="images-wrapper">
+		<img src="%s" alt="%s" class="bottom-image" style="object-fit: %s;" />
+		<img src="%s" alt="%s" class="top-image" style="clip-path: %s; object-fit: %s;" />
+	</div>',
+	esc_url( $bottom_image_url ),
+	esc_attr( $bottom_image_alt ),
+	esc_attr( $object_fit ),
+	esc_url( $top_image_url ),
+	esc_attr( $top_image_alt ),
+	esc_attr( $initial_clip_path ),
+	esc_attr( $object_fit )
+);
+
+if ( $show_caption && ! empty( $caption ) ) {
+	$content = sprintf(
+		'<figure>%s<figcaption class="image-scroll-reveal-caption">%s</figcaption></figure>',
+		$images_content,
+		wp_kses_post( $caption )
+	);
+} else {
+	$content = $images_content;
+}
+?>
+<div <?php echo $wrapper_attributes; ?>>
+	<?php echo $content; ?>
+</div>]]></content>
+  </file>
+</artefact>

@@ -1,0 +1,104 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "telex/block-image-scroll-reveal",
+  "version": "0.1.0",
+  "title": "Image Scroll Reveal",
+  "category": "media",
+  "icon": "images-alt2",
+  "description": "Create scroll-triggered image reveal animations with customizable directions and fade effects",
+  "example": {
+    "attributes": {
+      "topImageUrl": "https://placehold.co/800x600/4299e1/ffffff?text=Top+Image",
+      "bottomImageUrl": "https://placehold.co/800x600/10b981/ffffff?text=Bottom+Image",
+      "revealDirection": "top"
+    }
+  },
+  "attributes": {
+    "topImageId": {
+      "type": "number"
+    },
+    "topImageUrl": {
+      "type": "string"
+    },
+    "topImageAlt": {
+      "type": "string",
+      "default": ""
+    },
+    "topImageSizeSlug": {
+      "type": "string",
+      "default": "full"
+    },
+    "bottomImageId": {
+      "type": "number"
+    },
+    "bottomImageUrl": {
+      "type": "string"
+    },
+    "bottomImageAlt": {
+      "type": "string",
+      "default": ""
+    },
+    "bottomImageSizeSlug": {
+      "type": "string",
+      "default": "full"
+    },
+    "caption": {
+      "type": "string",
+      "source": "html",
+      "selector": "figcaption",
+      "default": ""
+    },
+    "showCaption": {
+      "type": "boolean",
+      "default": true
+    },
+    "revealDirection": {
+      "type": "string",
+      "default": "top",
+      "enum": [
+        "left",
+        "right",
+        "top",
+        "bottom"
+      ]
+    },
+    "transitionFadeWidth": {
+      "type": "number",
+      "default": 20
+    },
+    "objectFit": {
+      "type": "string",
+      "default": "cover",
+      "enum": [
+        "cover",
+        "contain",
+        "fill",
+        "none"
+      ]
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": [
+      "wide",
+      "full"
+    ],
+    "spacing": {
+      "margin": true,
+      "padding": true
+    },
+    "__experimentalBorder": {
+      "color": true,
+      "radius": true,
+      "style": true,
+      "width": true
+    }
+  },
+  "textdomain": "image-scroll-reveal",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css",
+  "viewScript": "file:./view.js",
+  "render": "file:./render.php"
+}
